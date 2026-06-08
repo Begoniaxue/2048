@@ -1,66 +1,122 @@
-import { useCallback } from "react";
+import { useEffect, useState } from "react";
 import { useGameStore } from "../store/gameStore";
-import { useKeyboard } from "../hooks/useKeyboard";
 import { BoardComponent } from "../components/Board";
 import { ScorePanel } from "../components/ScorePanel";
 import { Modal } from "../components/Modal";
-import { Direction } from "../types/game";
+import { LEVELS } from "../utils/levels";
 
 export const Home = () => {
-  const { board, score, bestScore, gameStatus, handleMove, resetGame } =
-    useGameStore();
+  const {
+    board,
+    score,
+    bestScore,
+    currentLevel,
+    totalLevels,
+    lives,
+    maxLives,
+    gameStatus,
+    wrongClickedIds,
+    correctClickedIds,
+    remainingWrongs,
+    handleCellClick,
+    nextLevel,
+    resetGame,
+  } = useGameStore();
 
-  const onMove = useCallback(
-    (direction: Direction) => {
-      handleMove(direction);
-    },
-    [handleMove]
-  );
+  const [showLevelComplete, setShowLevelComplete] = useState(false);
 
-  useKeyboard(onMove);
+  useEffect(() => {
+    if (
+      gameStatus === "playing" &&
+      remainingWrongs === 0 &&
+      currentLevel < totalLevels
+    ) {
+      setShowLevelComplete(true);
+    }
+  }, [remainingWrongs, gameStatus, currentLevel, totalLevels]);
+
+  const handleNextLevel = () => {
+    setShowLevelComplete(false);
+    nextLevel();
+  };
+
+  const handleRestart = () => {
+    setShowLevelComplete(false);
+    resetGame();
+  };
+
+  const currentLevelData = LEVELS[currentLevel - 1];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-100 flex items-center justify-center p-4">
-      <div className="w-full max-w-md flex flex-col gap-4">
-        <div className="flex items-start justify-between gap-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+      <div className="w-full max-w-lg flex flex-col gap-4">
+        <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
-            <h1 className="text-6xl font-black text-text-dark tracking-tight leading-none">
-              2048
+            <h1 className="text-5xl font-black text-text-dark tracking-tight leading-none">
+              文字找茬
             </h1>
             <p className="text-sm text-text-dark/60 mt-2">
-              合并数字，达到 2048！
+              找出所有不同的错别字！
             </p>
           </div>
-          <ScorePanel score={score} bestScore={bestScore} />
+          <ScorePanel
+            score={score}
+            bestScore={bestScore}
+            currentLevel={currentLevel}
+            totalLevels={totalLevels}
+            lives={lives}
+            maxLives={maxLives}
+          />
         </div>
 
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between flex-wrap gap-2">
           <div className="text-xs text-text-dark/60">
-            <p className="font-semibold">玩法说明：</p>
-            <p>键盘方向键 或 滑动屏幕</p>
+            <p className="font-semibold">本关提示：</p>
+            <p>
+              找出"<span className="font-bold text-accent">{currentLevelData?.wrongChar}</span>"字，
+              共 {currentLevelData?.wrongCount} 个
+            </p>
           </div>
           <button
-            onClick={resetGame}
+            onClick={handleRestart}
             className="px-5 py-2.5 bg-board hover:bg-board/90 text-white font-bold rounded-lg transition-all active:scale-95 shadow-md"
           >
-            新游戏
+            重新开始
           </button>
         </div>
 
-        <BoardComponent board={board} onSwipe={onMove} />
+        <BoardComponent
+          board={board}
+          onCellClick={handleCellClick}
+          wrongClickedIds={wrongClickedIds}
+          correctClickedIds={correctClickedIds}
+          disabled={gameStatus !== "playing" || showLevelComplete}
+        />
 
         <div className="text-center text-xs text-text-dark/50">
-          <p>合成 2048 即为通关 · 棋盘填满无法移动则游戏结束</p>
+          <p>点击错别字得分 · 点错扣除机会 · 共 {totalLevels} 关</p>
         </div>
       </div>
 
+      {showLevelComplete && (
+        <Modal
+          title={`🎉 第 ${currentLevel} 关通过！`}
+          subtitle="干得漂亮！准备进入下一关"
+          buttonText="下一关"
+          onClose={handleNextLevel}
+          secondaryButtonText="重新开始"
+          onSecondary={handleRestart}
+          accentClass="bg-accent"
+        />
+      )}
+
       {gameStatus === "won" && (
         <Modal
-          title="🎉 恭喜通关！"
-          subtitle="你成功合成了 2048！"
+          title="� 恭喜通关！"
+          subtitle="你成功找出了所有错别字！"
           score={score}
           buttonText="再来一局"
-          onClose={resetGame}
+          onClose={handleRestart}
           accentClass="bg-tile-2048"
         />
       )}
@@ -68,11 +124,11 @@ export const Home = () => {
       {gameStatus === "over" && (
         <Modal
           title="游戏结束"
-          subtitle="棋盘已满，没有可合并的方块了"
+          subtitle="机会已用完，再接再厉！"
           score={score}
           buttonText="重新开始"
-          onClose={resetGame}
-          accentClass="bg-tile-64"
+          onClose={handleRestart}
+          accentClass="bg-wrong-cell"
         />
       )}
     </div>

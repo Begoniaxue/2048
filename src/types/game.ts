@@ -1,27 +1,32 @@
-export interface Tile {
+export interface CharacterCell {
   id: number;
-  value: number;
+  char: string;
+  isWrong: boolean;
   row: number;
   col: number;
-  isNew?: boolean;
-  isMerged?: boolean;
 }
 
-export type Board = (Tile | null)[][];
+export type CharBoard = CharacterCell[][];
 
-export type Direction = "up" | "down" | "left" | "right";
+export interface Level {
+  id: number;
+  correctChar: string;
+  wrongChar: string;
+  rows: number;
+  cols: number;
+  wrongCount: number;
+}
 
 export type GameStatus = "playing" | "won" | "over";
 
 export interface GameState {
-  board: Board;
+  currentLevel: number;
   score: number;
-  bestScore: number;
+  lives: number;
+  maxLives: number;
+  totalLevels: number;
+  board: CharBoard;
   gameStatus: GameStatus;
-}
-
-export interface MoveResult {
-  board: Board;
-  score: number;
-  moved: boolean;
+  wrongClickedIds: number[];
+  correctClickedIds: number[];
 }

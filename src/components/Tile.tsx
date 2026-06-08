@@ -1,59 +1,53 @@
-import { Tile } from "../types/game";
+import { CharacterCell } from "../types/game";
 
-interface TileProps {
-  tile: Tile;
-  cellSize: number;
-  gap: number;
+interface CharTileProps {
+  cell: CharacterCell;
+  isClickedWrong: boolean;
+  isClickedCorrect: boolean;
+  onClick: () => void;
+  disabled: boolean;
 }
 
-const tileColors: Record<number, string> = {
-  2: "bg-tile-2 text-text-dark",
-  4: "bg-tile-4 text-text-dark",
-  8: "bg-tile-8 text-text-light",
-  16: "bg-tile-16 text-text-light",
-  32: "bg-tile-32 text-text-light",
-  64: "bg-tile-64 text-text-light",
-  128: "bg-tile-128 text-text-light",
-  256: "bg-tile-256 text-text-light",
-  512: "bg-tile-512 text-text-light",
-  1024: "bg-tile-1024 text-text-light",
-  2048: "bg-tile-2048 text-text-light",
-};
+export const CharTile = ({
+  cell,
+  isClickedWrong,
+  isClickedCorrect,
+  onClick,
+  disabled,
+}: CharTileProps) => {
+  let bgClass = "bg-white hover:bg-tile-hover";
+  let textClass = "text-text-dark";
+  let borderClass = "border-board-cell";
+  let animClass = "";
 
-const getFontSize = (value: number, cellSize: number): string => {
-  const digits = value.toString().length;
-  if (digits <= 2) return `${cellSize * 0.45}px`;
-  if (digits === 3) return `${cellSize * 0.36}px`;
-  if (digits === 4) return `${cellSize * 0.3}px`;
-  return `${cellSize * 0.24}px`;
-};
-
-export const TileComponent = ({ tile, cellSize, gap }: TileProps) => {
-  const colorClass = tileColors[tile.value] || "bg-tile-super text-text-light";
-  const fontSize = getFontSize(tile.value, cellSize);
-
-  const x = tile.col * (cellSize + gap);
-  const y = tile.row * (cellSize + gap);
-
-  let animationClass = "";
-  if (tile.isNew) animationClass = "animate-appear";
-  else if (tile.isMerged) animationClass = "animate-pop";
+  if (isClickedWrong) {
+    bgClass = "bg-wrong-cell";
+    textClass = "text-white";
+    borderClass = "border-wrong-cell";
+    animClass = "animate-shake";
+  } else if (isClickedCorrect) {
+    bgClass = "bg-correct-cell";
+    textClass = "text-white";
+    borderClass = "border-correct-cell";
+    animClass = "animate-pop";
+  }
 
   return (
-    <div
-      className="absolute transition-all duration-100 ease-out"
+    <button
+      onClick={onClick}
+      disabled={disabled || isClickedWrong || isClickedCorrect}
+      className={`
+        aspect-square rounded-md border-2 ${borderClass}
+        flex items-center justify-center font-bold shadow-sm
+        transition-all duration-150 ease-out
+        ${bgClass} ${textClass} ${animClass}
+        ${disabled || isClickedWrong || isClickedCorrect ? "cursor-default" : "cursor-pointer active:scale-95"}
+      `}
       style={{
-        width: `${cellSize}px`,
-        height: `${cellSize}px`,
-        transform: `translate(${x}px, ${y}px)`,
+        fontSize: "clamp(1.25rem, 4.5vw, 2.25rem)",
       }}
     >
-      <div
-        className={`w-full h-full rounded-md flex items-center justify-center font-bold shadow-sm select-none ${colorClass} ${animationClass}`}
-        style={{ fontSize }}
-      >
-        {tile.value}
-      </div>
-    </div>
+      {cell.char}
+    </button>
   );
 };

@@ -9,8 +9,8 @@ export default {
     },
     extend: {
       colors: {
-        board: "#bbada0",
-        "board-cell": "#cdc1b4",
+        board: "#8b7355",
+        "board-cell": "#d4c5b0",
         "tile-2": "#eee4da",
         "tile-4": "#ede0c8",
         "tile-8": "#f2b179",
@@ -23,7 +23,11 @@ export default {
         "tile-1024": "#edc53f",
         "tile-2048": "#edc22e",
         "tile-super": "#3c3a32",
-        "text-dark": "#776e65",
+        "tile-hover": "#f5f0e8",
+        "correct-cell": "#22c55e",
+        "wrong-cell": "#ef4444",
+        accent: "#6366f1",
+        "text-dark": "#4a3f35",
         "text-light": "#f9f6f2",
       },
       keyframes: {
@@ -40,11 +44,19 @@ export default {
           "0%": { opacity: "0" },
           "100%": { opacity: "1" },
         },
+        shake: {
+          "0%, 100%": { transform: "translateX(0)" },
+          "20%": { transform: "translateX(-4px)" },
+          "40%": { transform: "translateX(4px)" },
+          "60%": { transform: "translateX(-3px)" },
+          "80%": { transform: "translateX(3px)" },
+        },
       },
       animation: {
         appear: "appear 0.2s ease-in-out",
         pop: "pop 0.2s ease-in-out",
         "fade-in": "fade-in 0.3s ease-in-out",
+        shake: "shake 0.4s ease-in-out",
       },
     },
   },

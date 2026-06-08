@@ -1,80 +1,45 @@
-import { useState, useEffect, useMemo, useRef, useCallback } from "react";
-import { Board, Direction } from "../types/game";
-import { TileComponent } from "./Tile";
-import { useTouch } from "../hooks/useTouch";
+import { CharBoard } from "../types/game";
+import { CharTile } from "./Tile";
 
 interface BoardProps {
-  board: Board;
-  onSwipe: (direction: Direction) => void;
+  board: CharBoard;
+  onCellClick: (cellId: number, isWrong: boolean) => void;
+  wrongClickedIds: number[];
+  correctClickedIds: number[];
+  disabled: boolean;
 }
 
-const GAP = 12;
-const PADDING = 12;
-
-export const BoardComponent = ({ board, onSwipe }: BoardProps) => {
-  const boardRef = useRef<HTMLDivElement>(null);
-  const touchRef = useTouch<HTMLDivElement>({ onSwipe });
-  const [size, setSize] = useState(480);
-
-  const updateSize = useCallback(() => {
-    if (boardRef.current) {
-      setSize(boardRef.current.clientWidth);
-    }
-  }, []);
-
-  useEffect(() => {
-    updateSize();
-    window.addEventListener("resize", updateSize);
-    return () => window.removeEventListener("resize", updateSize);
-  }, [updateSize]);
-
-  const setRefs = useCallback(
-    (el: HTMLDivElement | null) => {
-      boardRef.current = el;
-      (touchRef as React.MutableRefObject<HTMLDivElement | null>).current = el;
-      if (el) updateSize();
-    },
-    [touchRef, updateSize]
-  );
-
-  const cellSize = (size - PADDING * 2 - GAP * 3) / 4;
-
-  const tiles = useMemo(() => {
-    const result = [];
-    for (let row = 0; row < 4; row++) {
-      for (let col = 0; col < 4; col++) {
-        const tile = board[row][col];
-        if (tile) result.push(tile);
-      }
-    }
-    return result;
-  }, [board]);
+export const BoardComponent = ({
+  board,
+  onCellClick,
+  wrongClickedIds,
+  correctClickedIds,
+  disabled,
+}: BoardProps) => {
+  const rows = board.length;
+  const cols = board[0]?.length || 0;
 
   return (
-    <div className="flex items-center justify-center w-full">
+    <div className="w-full flex items-center justify-center">
       <div
-        ref={setRefs}
-        className="relative bg-board rounded-lg touch-none aspect-square w-full max-w-[480px]"
-        style={{
-          padding: PADDING,
-        }}
+        className="relative bg-board rounded-lg p-3 w-full max-w-[520px] aspect-square"
       >
         <div
-          className="w-full h-full grid grid-cols-4 grid-rows-4"
-          style={{ gap: GAP }}
+          className="w-full h-full grid"
+          style={{
+            gridTemplateColumns: `repeat(${cols}, 1fr)`,
+            gridTemplateRows: `repeat(${rows}, 1fr)`,
+            gap: "8px",
+          }}
         >
-          {Array.from({ length: 16 }).map((_, i) => (
-            <div key={i} className="bg-board-cell rounded-md" />
-          ))}
-        </div>
-
-        <div className="absolute inset-0" style={{ padding: PADDING }}>
-          {tiles.map((tile) => (
-            <TileComponent
-              key={tile.id}
-              tile={tile}
-              cellSize={cellSize}
-              gap={GAP}
+          {board.flat().map((cell) => (
+            <CharTile
+              key={cell.id}
+              cell={cell}
+              isClickedWrong={wrongClickedIds.includes(cell.id)}
+              isClickedCorrect={correctClickedIds.includes(cell.id)}
+              onClick={() => onCellClick(cell.id, cell.isWrong)}
+              disabled={disabled}
             />
           ))}
         </div>
