@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { CharBoard, GameStatus } from "../types/game";
+import { CharBoard, GameStatus, GameOverReason } from "../types/game";
 import { LEVELS } from "../utils/levels";
 import { generateBoard, getTotalWrongInBoard } from "../utils/gameLogic";
 
@@ -16,15 +16,20 @@ interface GameStore {
   wrongClickedIds: number[];
   correctClickedIds: number[];
   remainingWrongs: number;
+  timeLeft: number;
+  maxTime: number;
+  gameOverReason: GameOverReason;
   resetGame: () => void;
   handleCellClick: (cellId: number, isWrong: boolean) => void;
   nextLevel: () => void;
+  tick: () => void;
 }
 
 const MAX_LIVES = 3;
 const TOTAL_LEVELS = LEVELS.length;
 const SCORE_PER_CORRECT = 100;
 const SCORE_PER_LEVEL_BONUS = 50;
+const MAX_TIME = 15;
 
 const initGame = () => {
   const firstLevel = LEVELS[0];
@@ -40,6 +45,9 @@ const initGame = () => {
     wrongClickedIds: [] as number[],
     correctClickedIds: [] as number[],
     remainingWrongs: getTotalWrongInBoard(board),
+    timeLeft: MAX_TIME,
+    maxTime: MAX_TIME,
+    gameOverReason: null as GameOverReason,
   };
 };
 
@@ -55,6 +63,23 @@ export const useGameStore = create<GameStore>()(
         });
       },
 
+      tick: () => {
+        const { gameStatus, timeLeft, remainingWrongs, currentLevel, totalLevels } = get();
+        if (gameStatus !== "playing") return;
+        if (remainingWrongs === 0 && currentLevel < totalLevels) return;
+
+        const newTimeLeft = timeLeft - 1;
+        if (newTimeLeft <= 0) {
+          set({
+            timeLeft: 0,
+            gameStatus: "over",
+            gameOverReason: "time",
+          });
+        } else {
+          set({ timeLeft: newTimeLeft });
+        }
+      },
+
       handleCellClick: (cellId: number, isWrong: boolean) => {
         const {
           gameStatus,
@@ -63,7 +88,6 @@ export const useGameStore = create<GameStore>()(
           lives,
           score,
           currentLevel,
-          board,
           remainingWrongs,
           bestScore,
         } = get();
@@ -77,8 +101,9 @@ export const useGameStore = create<GameStore>()(
           const newScore = score + SCORE_PER_CORRECT;
 
           if (newRemainingWrongs <= 0) {
+            const timeBonus = Math.floor(get().timeLeft * 10);
             const levelBonus = SCORE_PER_LEVEL_BONUS * lives;
-            const finalLevelScore = newScore + levelBonus;
+            const finalLevelScore = newScore + levelBonus + timeBonus;
             const newBestScore = Math.max(bestScore, finalLevelScore);
 
             if (currentLevel >= TOTAL_LEVELS) {
@@ -115,6 +140,7 @@ export const useGameStore = create<GameStore>()(
               wrongClickedIds: newWrongClickedIds,
               lives: 0,
               gameStatus: "over",
+              gameOverReason: "lives",
             });
           } else {
             set({
@@ -139,6 +165,7 @@ export const useGameStore = create<GameStore>()(
           wrongClickedIds: [],
           correctClickedIds: [],
           remainingWrongs: getTotalWrongInBoard(newBoard),
+          timeLeft: MAX_TIME,
         });
       },
     }),

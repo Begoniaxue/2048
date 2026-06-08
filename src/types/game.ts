@@ -19,6 +19,8 @@ export interface Level {
 
 export type GameStatus = "playing" | "won" | "over";
 
+export type GameOverReason = "lives" | "time" | null;
+
 export interface GameState {
   currentLevel: number;
   score: number;
@@ -29,4 +31,7 @@ export interface GameState {
   gameStatus: GameStatus;
   wrongClickedIds: number[];
   correctClickedIds: number[];
+  timeLeft: number;
+  maxTime: number;
+  gameOverReason: GameOverReason;
 }

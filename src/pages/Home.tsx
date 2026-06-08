@@ -18,12 +18,27 @@ export const Home = () => {
     wrongClickedIds,
     correctClickedIds,
     remainingWrongs,
+    timeLeft,
+    maxTime,
+    gameOverReason,
     handleCellClick,
     nextLevel,
     resetGame,
+    tick,
   } = useGameStore();
 
   const [showLevelComplete, setShowLevelComplete] = useState(false);
+
+  useEffect(() => {
+    if (gameStatus !== "playing") return;
+    if (showLevelComplete) return;
+
+    const timer = setInterval(() => {
+      tick();
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [gameStatus, showLevelComplete, tick]);
 
   useEffect(() => {
     if (
@@ -47,6 +62,23 @@ export const Home = () => {
 
   const currentLevelData = LEVELS[currentLevel - 1];
 
+  const getOverModalContent = () => {
+    if (gameOverReason === "time") {
+      return {
+        title: "时间到！",
+        subtitle: "倒计时结束，挑战失败",
+        accentClass: "bg-wrong-cell",
+      };
+    }
+    return {
+      title: "游戏结束",
+      subtitle: "机会已用完，再接再厉！",
+      accentClass: "bg-wrong-cell",
+    };
+  };
+
+  const overContent = getOverModalContent();
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
       <div className="w-full max-w-lg flex flex-col gap-4">
@@ -66,6 +98,8 @@ export const Home = () => {
             totalLevels={totalLevels}
             lives={lives}
             maxLives={maxLives}
+            timeLeft={timeLeft}
+            maxTime={maxTime}
           />
         </div>
 
@@ -74,7 +108,7 @@ export const Home = () => {
             <p className="font-semibold">本关提示：</p>
             <p>
               找出"<span className="font-bold text-accent">{currentLevelData?.wrongChar}</span>"字，
-              共 {currentLevelData?.wrongCount} 个
+              共 {currentLevelData?.wrongCount} 个 · 限时 {maxTime} 秒
             </p>
           </div>
           <button
@@ -94,7 +128,7 @@ export const Home = () => {
         />
 
         <div className="text-center text-xs text-text-dark/50">
-          <p>点击错别字得分 · 点错扣除机会 · 共 {totalLevels} 关</p>
+          <p>点击错别字得分 · 剩余时间加分 · 共 {totalLevels} 关</p>
         </div>
       </div>
 
@@ -112,7 +146,7 @@ export const Home = () => {
 
       {gameStatus === "won" && (
         <Modal
-          title="� 恭喜通关！"
+          title="🏆 恭喜通关！"
           subtitle="你成功找出了所有错别字！"
           score={score}
           buttonText="再来一局"
@@ -123,12 +157,12 @@ export const Home = () => {
 
       {gameStatus === "over" && (
         <Modal
-          title="游戏结束"
-          subtitle="机会已用完，再接再厉！"
+          title={overContent.title}
+          subtitle={overContent.subtitle}
           score={score}
           buttonText="重新开始"
           onClose={handleRestart}
-          accentClass="bg-wrong-cell"
+          accentClass={overContent.accentClass}
         />
       )}
     </div>
