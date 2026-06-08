@@ -32,8 +32,8 @@ export const TileComponent = ({ tile, cellSize, gap }: TileProps) => {
   const colorClass = tileColors[tile.value] || "bg-tile-super text-text-light";
   const fontSize = getFontSize(tile.value, cellSize);
 
-  const x = gap + tile.col * (cellSize + gap);
-  const y = gap + tile.row * (cellSize + gap);
+  const x = tile.col * (cellSize + gap);
+  const y = tile.row * (cellSize + gap);
 
   let animationClass = "";
   if (tile.isNew) animationClass = "animate-appear";

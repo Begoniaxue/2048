@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { Board, Direction } from "../types/game";
 import { TileComponent } from "./Tile";
 import { useTouch } from "../hooks/useTouch";
@@ -12,19 +12,32 @@ const GAP = 12;
 const PADDING = 12;
 
 export const BoardComponent = ({ board, onSwipe }: BoardProps) => {
+  const boardRef = useRef<HTMLDivElement>(null);
   const touchRef = useTouch<HTMLDivElement>({ onSwipe });
-  const [containerWidth, setContainerWidth] = useState(480);
+  const [size, setSize] = useState(480);
+
+  const updateSize = useCallback(() => {
+    if (boardRef.current) {
+      setSize(boardRef.current.clientWidth);
+    }
+  }, []);
 
   useEffect(() => {
-    const updateSize = () => {
-      setContainerWidth(Math.min(window.innerWidth * 0.9, 480));
-    };
     updateSize();
     window.addEventListener("resize", updateSize);
     return () => window.removeEventListener("resize", updateSize);
-  }, []);
+  }, [updateSize]);
 
-  const cellSize = (containerWidth - PADDING * 2 - GAP * 3) / 4;
+  const setRefs = useCallback(
+    (el: HTMLDivElement | null) => {
+      boardRef.current = el;
+      (touchRef as React.MutableRefObject<HTMLDivElement | null>).current = el;
+      if (el) updateSize();
+    },
+    [touchRef, updateSize]
+  );
+
+  const cellSize = (size - PADDING * 2 - GAP * 3) / 4;
 
   const tiles = useMemo(() => {
     const result = [];
@@ -40,11 +53,9 @@ export const BoardComponent = ({ board, onSwipe }: BoardProps) => {
   return (
     <div className="flex items-center justify-center w-full">
       <div
-        ref={touchRef}
-        className="relative bg-board rounded-lg touch-none"
+        ref={setRefs}
+        className="relative bg-board rounded-lg touch-none aspect-square w-full max-w-[480px]"
         style={{
-          width: containerWidth,
-          height: containerWidth,
           padding: PADDING,
         }}
       >
