@@ -41,15 +41,19 @@ export const TileComponent = ({ tile, cellSize, gap }: TileProps) => {
 
   return (
     <div
-      className={`absolute rounded-md flex items-center justify-center font-bold shadow-sm select-none transition-all duration-100 ease-out ${colorClass} ${animationClass}`}
+      className="absolute transition-all duration-100 ease-out"
       style={{
         width: `${cellSize}px`,
         height: `${cellSize}px`,
         transform: `translate(${x}px, ${y}px)`,
-        fontSize,
       }}
     >
-      {tile.value}
+      <div
+        className={`w-full h-full rounded-md flex items-center justify-center font-bold shadow-sm select-none ${colorClass} ${animationClass}`}
+        style={{ fontSize }}
+      >
+        {tile.value}
+      </div>
     </div>
   );
 };
