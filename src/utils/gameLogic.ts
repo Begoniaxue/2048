@@ -115,6 +115,17 @@ const moveBoardLeft = (board: Board): MoveResult => {
   return { board: newBoard, score: totalScore, moved: anyMoved };
 };
 
+const syncTilePositions = (board: Board): Board => {
+  return board.map((row, rowIndex) =>
+    row.map((tile, colIndex) => {
+      if (tile) {
+        return { ...tile, row: rowIndex, col: colIndex };
+      }
+      return null;
+    })
+  );
+};
+
 export const move = (board: Board, direction: Direction): MoveResult => {
   let rotations = 0;
   switch (direction) {
@@ -144,6 +155,8 @@ export const move = (board: Board, direction: Direction): MoveResult => {
   for (let i = 0; i < reverseRotations; i++) {
     finalBoard = rotateBoard(finalBoard);
   }
+
+  finalBoard = syncTilePositions(finalBoard);
 
   return { board: finalBoard, score: result.score, moved: result.moved };
 };
