@@ -20,10 +20,10 @@ export const Modal = ({
   accentClass = "bg-accent",
 }: ModalProps) => {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 animate-fade-in p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 animate-fade-in p-4">
       <div className="bg-white rounded-xl p-8 shadow-2xl max-w-sm w-full text-center animate-pop">
         <div className={`inline-block px-4 py-1 rounded-full ${accentClass} text-white text-sm font-bold mb-4`}>
-          文字找茬
+          俄罗斯方块
         </div>
         <h2 className="text-3xl font-bold text-text-dark mb-2">{title}</h2>
         {subtitle && <p className="text-text-dark/60 mb-6">{subtitle}</p>}

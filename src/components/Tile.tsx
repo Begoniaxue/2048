@@ -1,53 +1,32 @@
-import { CharacterCell } from "../types/game";
+import { CellValue, TETROMINO_COLORS } from "../types/game";
 
-interface CharTileProps {
-  cell: CharacterCell;
-  isClickedWrong: boolean;
-  isClickedCorrect: boolean;
-  onClick: () => void;
-  disabled: boolean;
+interface CellProps {
+  value: CellValue;
+  isGhost?: boolean;
 }
 
-export const CharTile = ({
-  cell,
-  isClickedWrong,
-  isClickedCorrect,
-  onClick,
-  disabled,
-}: CharTileProps) => {
-  let bgClass = "bg-white hover:bg-tile-hover";
-  let textClass = "text-text-dark";
-  let borderClass = "border-board-cell";
-  let animClass = "";
+export const Cell = ({ value, isGhost = false }: CellProps) => {
+  let bgClass = "bg-board-cell";
+  let borderClass = "border-board-cell/50";
 
-  if (isClickedWrong) {
-    bgClass = "bg-wrong-cell";
-    textClass = "text-white";
-    borderClass = "border-wrong-cell";
-    animClass = "animate-shake";
-  } else if (isClickedCorrect) {
-    bgClass = "bg-correct-cell";
-    textClass = "text-white";
-    borderClass = "border-correct-cell";
-    animClass = "animate-pop";
+  if (value) {
+    bgClass = TETROMINO_COLORS[value];
+    borderClass = "border-white/30";
+  }
+
+  if (isGhost && value) {
+    bgClass = `${TETROMINO_COLORS[value]} opacity-30`;
+    borderClass = "border-white/20";
   }
 
   return (
-    <button
-      onClick={onClick}
-      disabled={disabled || isClickedWrong || isClickedCorrect}
+    <div
       className={`
-        aspect-square rounded-md border-2 ${borderClass}
-        flex items-center justify-center font-bold shadow-sm
-        transition-all duration-150 ease-out
-        ${bgClass} ${textClass} ${animClass}
-        ${disabled || isClickedWrong || isClickedCorrect ? "cursor-default" : "cursor-pointer active:scale-95"}
+        aspect-square rounded-sm border ${borderClass}
+        flex items-center justify-center
+        transition-colors duration-100
+        ${bgClass}
       `}
-      style={{
-        fontSize: "clamp(1.25rem, 4.5vw, 2.25rem)",
-      }}
-    >
-      {cell.char}
-    </button>
+    />
   );
 };

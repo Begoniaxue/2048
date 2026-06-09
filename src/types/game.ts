@@ -1,13 +1,3 @@
-export interface CharacterCell {
-  id: number;
-  char: string;
-  isWrong: boolean;
-  row: number;
-  col: number;
-}
-
-export type CharBoard = CharacterCell[][];
-
 export interface Level {
   id: number;
   correctChar: string;
@@ -17,21 +7,83 @@ export interface Level {
   wrongCount: number;
 }
 
-export type GameStatus = "playing" | "won" | "over";
+export type TetrominoType = "I" | "O" | "T" | "S" | "Z" | "J" | "L";
 
-export type GameOverReason = "lives" | "time" | null;
+export type CellValue = TetrominoType | null;
+
+export type GameBoard = CellValue[][];
+
+export interface Position {
+  x: number;
+  y: number;
+}
+
+export interface Tetromino {
+  type: TetrominoType;
+  shape: number[][];
+  position: Position;
+}
+
+export type GameStatus = "idle" | "playing" | "paused" | "over";
 
 export interface GameState {
-  currentLevel: number;
+  board: GameBoard;
+  currentPiece: Tetromino | null;
+  nextPiece: Tetromino | null;
   score: number;
-  lives: number;
-  maxLives: number;
-  totalLevels: number;
-  board: CharBoard;
+  bestScore: number;
+  level: number;
+  lines: number;
   gameStatus: GameStatus;
-  wrongClickedIds: number[];
-  correctClickedIds: number[];
-  timeLeft: number;
-  maxTime: number;
-  gameOverReason: GameOverReason;
 }
+
+export const BOARD_WIDTH = 10;
+export const BOARD_HEIGHT = 20;
+
+export const TETROMINO_COLORS: Record<TetrominoType, string> = {
+  I: "bg-cyan-400",
+  O: "bg-yellow-400",
+  T: "bg-purple-500",
+  S: "bg-green-500",
+  Z: "bg-red-500",
+  J: "bg-blue-500",
+  L: "bg-orange-500",
+};
+
+export const TETROMINO_SHAPES: Record<TetrominoType, number[][]> = {
+  I: [
+    [0, 0, 0, 0],
+    [1, 1, 1, 1],
+    [0, 0, 0, 0],
+    [0, 0, 0, 0],
+  ],
+  O: [
+    [1, 1],
+    [1, 1],
+  ],
+  T: [
+    [0, 1, 0],
+    [1, 1, 1],
+    [0, 0, 0],
+  ],
+  S: [
+    [0, 1, 1],
+    [1, 1, 0],
+    [0, 0, 0],
+  ],
+  Z: [
+    [1, 1, 0],
+    [0, 1, 1],
+    [0, 0, 0],
+  ],
+  J: [
+    [1, 0, 0],
+    [1, 1, 1],
+    [0, 0, 0],
+  ],
+  L: [
+    [0, 0, 1],
+    [1, 1, 1],
+    [0, 0, 0],
+  ],
+};

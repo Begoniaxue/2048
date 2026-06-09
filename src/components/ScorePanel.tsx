@@ -1,38 +1,65 @@
+import { Tetromino, TETROMINO_COLORS } from "../types/game";
+
 interface ScorePanelProps {
   score: number;
   bestScore: number;
-  currentLevel: number;
-  totalLevels: number;
-  lives: number;
-  maxLives: number;
-  timeLeft: number;
-  maxTime: number;
+  level: number;
+  lines: number;
+  nextPiece: Tetromino | null;
 }
 
 export const ScorePanel = ({
   score,
   bestScore,
-  currentLevel,
-  totalLevels,
-  lives,
-  maxLives,
-  timeLeft,
-  maxTime,
+  level,
+  lines,
+  nextPiece,
 }: ScorePanelProps) => {
-  const isUrgent = timeLeft <= 5;
+  return (
+    <div className="flex flex-col gap-3 w-full">
+      <div className="grid grid-cols-2 gap-2">
+        <StatusCard label="分数" value={score.toString()} accent />
+        <StatusCard label="最高分" value={bestScore.toString()} />
+        <StatusCard label="等级" value={level.toString()} />
+        <StatusCard label="消行" value={lines.toString()} />
+      </div>
+
+      <div className="bg-board rounded-lg p-3">
+        <div className="text-[11px] uppercase tracking-wider text-text-light/80 font-bold mb-2 text-center">
+          下一个
+        </div>
+        <div className="flex items-center justify-center">
+          {nextPiece && <NextPiecePreview piece={nextPiece} />}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const NextPiecePreview = ({ piece }: { piece: Tetromino }) => {
+  const { shape, type } = piece;
+  const colorClass = TETROMINO_COLORS[type];
 
   return (
-    <div className="flex flex-wrap gap-2 justify-end">
-      <StatusCard label="关卡" value={`${currentLevel}/${totalLevels}`} accent />
-      <StatusCard
-        label="时间"
-        value={`${timeLeft}s`}
-        danger={isUrgent}
-        pulse={isUrgent}
-      />
-      <StatusCard label="分数" value={score.toString()} />
-      <StatusCard label="最高分" value={bestScore.toString()} />
-      <LivesCard lives={lives} maxLives={maxLives} />
+    <div
+      className="grid gap-0.5"
+      style={{
+        gridTemplateColumns: `repeat(${shape[0].length}, 1fr)`,
+        gridTemplateRows: `repeat(${shape.length}, 1fr)`,
+        width: "80px",
+        height: "80px",
+      }}
+    >
+      {shape.map((row, y) =>
+        row.map((cell, x) => (
+          <div
+            key={`${y}-${x}`}
+            className={`rounded-sm ${
+              cell ? `${colorClass} border border-white/30` : "bg-transparent"
+            }`}
+          />
+        ))
+      )}
     </div>
   );
 };
@@ -41,47 +68,19 @@ const StatusCard = ({
   label,
   value,
   accent = false,
-  danger = false,
-  pulse = false,
 }: {
   label: string;
   value: string;
   accent?: boolean;
-  danger?: boolean;
-  pulse?: boolean;
 }) => (
   <div
-    className={`rounded-md px-4 py-2 text-center min-w-[80px] transition-colors ${
-      accent
-        ? "bg-accent"
-        : danger
-          ? "bg-wrong-cell"
-          : "bg-board"
-    } ${pulse ? "animate-pulse" : ""}`}
+    className={`rounded-lg px-3 py-2 text-center ${
+      accent ? "bg-accent" : "bg-board"
+    }`}
   >
     <div className="text-[11px] uppercase tracking-wider text-text-light/80 font-bold">
       {label}
     </div>
     <div className="text-xl font-bold text-text-light">{value}</div>
-  </div>
-);
-
-const LivesCard = ({ lives, maxLives }: { lives: number; maxLives: number }) => (
-  <div className="rounded-md px-4 py-2 text-center min-w-[80px] bg-board">
-    <div className="text-[11px] uppercase tracking-wider text-text-light/80 font-bold">
-      机会
-    </div>
-    <div className="text-xl font-bold flex justify-center gap-1 mt-0.5">
-      {Array.from({ length: maxLives }).map((_, i) => (
-        <span
-          key={i}
-          className={`transition-all duration-200 ${
-            i < lives ? "text-red-400 scale-100" : "text-text-light/30 scale-75"
-          }`}
-        >
-          ♥
-        </span>
-      ))}
-    </div>
   </div>
 );
