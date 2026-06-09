@@ -35,6 +35,19 @@ export default {
           "0%": { transform: "scale(0)", opacity: "0" },
           "100%": { transform: "scale(1)", opacity: "1" },
         },
+        "card-appear": {
+          "0%": { transform: "scale(0) rotate(-10deg)", opacity: "0" },
+          "100%": { transform: "scale(1) rotate(0deg)", opacity: "1" },
+        },
+        "slot-in": {
+          "0%": { transform: "translateY(-30px) scale(0.8)", opacity: "0" },
+          "100%": { transform: "translateY(0) scale(1)", opacity: "1" },
+        },
+        "bounce-in": {
+          "0%": { transform: "scale(0)" },
+          "50%": { transform: "scale(1.2)" },
+          "100%": { transform: "scale(1)" },
+        },
         pop: {
           "0%": { transform: "scale(1)" },
           "50%": { transform: "scale(1.18)" },
@@ -51,12 +64,26 @@ export default {
           "60%": { transform: "translateX(-3px)" },
           "80%": { transform: "translateX(3px)" },
         },
+        "eliminate": {
+          "0%": { transform: "scale(1)", opacity: "1" },
+          "50%": { transform: "scale(1.3)", opacity: "0.8" },
+          "100%": { transform: "scale(0)", opacity: "0" },
+        },
+        "sparkle": {
+          "0%": { transform: "scale(0) rotate(0deg)", opacity: "1" },
+          "100%": { transform: "scale(1.5) rotate(180deg)", opacity: "0" },
+        },
       },
       animation: {
         appear: "appear 0.2s ease-in-out",
+        "card-appear": "card-appear 0.3s ease-out forwards",
+        "slot-in": "slot-in 0.3s ease-out forwards",
+        "bounce-in": "bounce-in 0.4s ease-out forwards",
         pop: "pop 0.2s ease-in-out",
         "fade-in": "fade-in 0.3s ease-in-out",
         shake: "shake 0.4s ease-in-out",
+        "eliminate": "eliminate 0.4s ease-out forwards",
+        "sparkle": "sparkle 0.6s ease-out forwards",
       },
     },
   },

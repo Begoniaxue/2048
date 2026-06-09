@@ -1,86 +1,55 @@
-import { Tetromino, TETROMINO_COLORS } from "../types/game";
+import { CARD_EMOJIS, CARD_TYPES } from "../types/game";
 
 interface ScorePanelProps {
-  score: number;
+  steps: number;
+  eliminatedCount: number;
+  totalCards: number;
   bestScore: number;
-  level: number;
-  lines: number;
-  nextPiece: Tetromino | null;
 }
 
-export const ScorePanel = ({
-  score,
-  bestScore,
-  level,
-  lines,
-  nextPiece,
-}: ScorePanelProps) => {
-  return (
-    <div className="flex flex-col gap-3 w-full">
-      <div className="grid grid-cols-2 gap-2">
-        <StatusCard label="分数" value={score.toString()} accent />
-        <StatusCard label="最高分" value={bestScore.toString()} />
-        <StatusCard label="等级" value={level.toString()} />
-        <StatusCard label="消行" value={lines.toString()} />
-      </div>
+export const ScorePanel = ({ steps, eliminatedCount, totalCards, bestScore }: ScorePanelProps) => {
+  const progress = totalCards > 0 ? Math.round((eliminatedCount / totalCards) * 100) : 0;
+  const remaining = totalCards - eliminatedCount;
 
-      <div className="bg-board rounded-lg p-3">
-        <div className="text-[11px] uppercase tracking-wider text-text-light/80 font-bold mb-2 text-center">
-          下一个
+  return (
+    <div className="w-full max-w-md mx-auto">
+      <div className="bg-gradient-to-r from-amber-700 to-amber-800 rounded-xl p-4 shadow-lg">
+        <div className="flex justify-between items-center mb-3">
+          <div className="text-center">
+            <div className="text-xs text-amber-200 uppercase tracking-wider">步数</div>
+            <div className="text-2xl font-bold text-white">{steps}</div>
+          </div>
+          <div className="text-center">
+            <div className="text-xs text-amber-200 uppercase tracking-wider">剩余</div>
+            <div className="text-2xl font-bold text-white">{remaining}</div>
+          </div>
+          <div className="text-center">
+            <div className="text-xs text-amber-200 uppercase tracking-wider">最佳</div>
+            <div className="text-2xl font-bold text-yellow-300">{bestScore}</div>
+          </div>
         </div>
-        <div className="flex items-center justify-center">
-          {nextPiece && <NextPiecePreview piece={nextPiece} />}
+
+        <div className="mb-3">
+          <div className="flex justify-between text-xs text-amber-200 mb-1">
+            <span>进度</span>
+            <span>{progress}%</span>
+          </div>
+          <div className="h-2 bg-amber-900/50 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-gradient-to-r from-yellow-400 to-green-400 transition-all duration-500 rounded-full"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+        </div>
+
+        <div className="flex justify-center gap-2">
+          {CARD_TYPES.map((type) => (
+            <div key={type} className="text-lg" title={type}>
+              {CARD_EMOJIS[type]}
+            </div>
+          ))}
         </div>
       </div>
     </div>
   );
 };
-
-const NextPiecePreview = ({ piece }: { piece: Tetromino }) => {
-  const { shape, type } = piece;
-  const colorClass = TETROMINO_COLORS[type];
-
-  return (
-    <div
-      className="grid gap-0.5"
-      style={{
-        gridTemplateColumns: `repeat(${shape[0].length}, 1fr)`,
-        gridTemplateRows: `repeat(${shape.length}, 1fr)`,
-        width: "80px",
-        height: "80px",
-      }}
-    >
-      {shape.map((row, y) =>
-        row.map((cell, x) => (
-          <div
-            key={`${y}-${x}`}
-            className={`rounded-sm ${
-              cell ? `${colorClass} border border-white/30` : "bg-transparent"
-            }`}
-          />
-        ))
-      )}
-    </div>
-  );
-};
-
-const StatusCard = ({
-  label,
-  value,
-  accent = false,
-}: {
-  label: string;
-  value: string;
-  accent?: boolean;
-}) => (
-  <div
-    className={`rounded-lg px-3 py-2 text-center ${
-      accent ? "bg-accent" : "bg-board"
-    }`}
-  >
-    <div className="text-[11px] uppercase tracking-wider text-text-light/80 font-bold">
-      {label}
-    </div>
-    <div className="text-xl font-bold text-text-light">{value}</div>
-  </div>
-);
