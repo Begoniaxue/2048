@@ -1,4 +1,11 @@
-import { Level } from "../types/game";
+interface Level {
+  id: number;
+  correctChar: string;
+  wrongChar: string;
+  rows: number;
+  cols: number;
+  wrongCount: number;
+}
 
 export const LEVELS: Level[] = [
   {

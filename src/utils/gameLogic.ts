@@ -23,24 +23,31 @@ export const createCardDeck = (): CardType[] => {
 
 const generateLayerPositions = (layer: number, totalCards: number): { x: number; y: number }[] => {
   const positions: { x: number; y: number }[] = [];
-  const baseGridSize = Math.ceil(Math.sqrt(totalCards * 1.5));
-  const offsetX = layer * 12 + 10;
-  const offsetY = layer * 12 + 10;
-  const cardSpacing = 52;
+  const baseGridSize = Math.ceil(Math.sqrt(totalCards * 1.2));
+  const cardWidth = 56;
+  const cardHeight = 56;
+  const boardWidth = 340;
+  const boardHeight = 340;
+
+  const gridTotalWidth = baseGridSize * cardWidth;
+  const gridTotalHeight = baseGridSize * cardHeight;
+
+  const startX = (boardWidth - gridTotalWidth) / 2 + layer * 8;
+  const startY = (boardHeight - gridTotalHeight) / 2 + layer * 8;
 
   for (let row = 0; row < baseGridSize && positions.length < totalCards; row++) {
     for (let col = 0; col < baseGridSize && positions.length < totalCards; col++) {
       positions.push({
-        x: col * cardSpacing + offsetX + (Math.random() - 0.5) * 15,
-        y: row * cardSpacing + offsetY + (Math.random() - 0.5) * 15,
+        x: startX + col * cardWidth + (Math.random() - 0.5) * 12,
+        y: startY + row * cardHeight + (Math.random() - 0.5) * 12,
       });
     }
   }
 
   while (positions.length < totalCards) {
     positions.push({
-      x: Math.random() * 200 + offsetX,
-      y: Math.random() * 200 + offsetY,
+      x: startX + Math.random() * gridTotalWidth,
+      y: startY + Math.random() * gridTotalHeight,
     });
   }
 
